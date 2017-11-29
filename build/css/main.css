@@ -129,10 +129,17 @@ body {
   font-family: sans-serif;
   font-size: 1.1rem
 }
+.game {
+  display: flex
+}
+.grid {
+  width: 520px;
+  height: 520px
+}
 .mem-card {
-  width: 100px;
-  height: 100px;
+  background-color: #ffffe0;
   cursor: pointer;
+  float: left;
   border: 1px solid red;
   border-radius: 10px;
   overflow: hidden
@@ -140,4 +147,9 @@ body {
 .mem-img {
   height: 100%;
   display: none
+}
+.empty {
+  border-color: #fff;
+  cursor: default;
+  background-color: #fff
 }

@@ -7,67 +7,140 @@ let pairClick = [];
 let click;
 
 let count = 0;
+let countCard = 0;
 
-function ff(event) {
+let gridSize = document.getElementById('selectSize').value;
+console.log('gridSize', gridSize);
+
+
+const appPath = '../img/';
+// const arr = ['animals-bunny.jpg', 'animals-bunny-2.jpg', 'animals-cat.jpg', 'animals-cat-2.jpg', 'animals-dog.jpg', 'animals-dog-2.jpg', 'animals-horse.jpg', 'animals-horse-2.jpg', 'architecture-london-towerbridge.jpg'];
+const arr = [];
+
+function endGame() {
+  if (countCard === +gridSize*2) {
+    alert('Congratulations!');
+  }
+}
+
+
+function createGrid() {
+  let newArray = shuffle(arr);
+  console.log('newArray', newArray);
+
+
+
+  let numberCard = gridSize * gridSize / 2;
+
+  for (let i = 0; i < numberCard * 2; i++) {
+    console.log(i);
+    let div = document.createElement('div');
+    div.className = 'mem-card';
+    let img = document.createElement('img');
+    img.className = 'mem-img';
+    grid.appendChild(div);
+    div.appendChild(img);
+    img.src = appPath + newArray[i];
+  }
+
+  renderGrid();
+}
+
+createGrid();
+
+function renderGrid() {
+  const gridWidth = document.querySelector('.grid').offsetWidth;
+
+  let cardSize = gridWidth / gridSize;
+
+
+  let card = [...document.querySelectorAll('.mem-card')];
+  card.forEach(elem => {
+    elem.style.width = cardSize + 'px';
+    elem.style.height = cardSize + 'px';
+  });
+}
+
+
+
+function changeSize() {
+  createGrid();
+
+}
+
+
+
+function shuffle(array) {
+
+  let result = [...array];
+
+  result.sort((a, b) => {
+    return Math.random() - 0.5;
+  });
+
+  return result;
+}
+
+
+
+function clickCard(event) {
   if (!event.target.classList.contains('mem-card')) return;
 
   show(event.target.firstElementChild);
 
-  console.log(event.target.firstElementChild.src);
   console.log('number of click', count++);
   pairClick.push(event.target.firstElementChild);
   click = event.target.firstElementChild.src;
 }
 
-grid.addEventListener('click', ff);
+grid.addEventListener('click', clickCard);
 grid.addEventListener('click', checkClick);
 
 
-function checkClick() {
-  if (pairClick.length == 2 && pairClick[0].src === pairClick[1].src) {
-    console.log('done');
-    pairClick.forEach(elem => elem.parentNode.remove());
-  } else if (pairClick.length == 2) {
-    pairClick.length = 0;
-  }
 
-  console.log('length', pairClick.length);
+function checkClick() {
+
+  if (pairClick.length == 2 && pairClick[0].src === pairClick[1].src) {
+    setTimeout(() => {
+      pairClick.forEach(elem => {
+        elem.parentNode.classList.add('empty');
+        hide(elem);
+      });
+      pairClick.length = 0;
+    }, 500);
+    countCard++;
+    console.log('countCard', countCard);
+    endGame();
+  } else if (pairClick.length == 2) {
+    setTimeout(() => {
+      pairClick.forEach(elem => {
+        hide(elem);
+      });
+      pairClick.length = 0;
+    }, 500);
+  }
 }
+
 
 
 function show(node) {
   node.style.display = 'block';
 }
 
-// function delete(node) {
-//   node.style.display = 'block';
-// }
-
-
-function reset() {
-  const images = document.querySelectorAll('.mem-img');
-  console.log(images);
-  const arrImages = [...images];
-
-  arrImages.forEach(elem => elem.style.display = 'none');
+function hide(node) {
+  node.style.display = 'none';
 }
 
 
+function restart() {
+  const listImages = document.querySelectorAll('.mem-img');
+  const arrImages = [...listImages];
+  console.log(arrImages);
 
-//return number from min to max, including both [min; max]
-//work with not an integer
-function randomNumber(min, max) {
-  if (min ^ 0 === min && max ^ 0 === max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  } else
+  pairClick.length = 0;
 
-  //technique - multiply and divide
-    return (Math.floor((Math.random() * (max - min + 0.1) * 10)) / 10) + min;
-}
-
-
-
-function changeSize() {
-  const size = document.getElementById('selectSize').value;
-
+  arrImages.forEach(elem => {
+    hide(elem);
+    elem.parentNode.classList.remove('empty');
+  });
 }

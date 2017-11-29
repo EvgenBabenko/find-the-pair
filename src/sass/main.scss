@@ -81,18 +81,22 @@ $width-aside: 100% - $width-grid;
 $height: 250px;
 
 .game {
+  display: flex;
 
   // width: 100%;
 }
 
 .grid {
-  // width: 80%;
+  width: 520px;
+  height: 520px;
 }
 
 .mem-card {
-  width: 100px;
-  height: 100px;
+  background-color: lightyellow;
+  // width: 100px;
+  // height: 100px;
   cursor: pointer;
+  float: left;
 
   border: 1px solid red;
   border-radius: 10px;
@@ -102,6 +106,13 @@ $height: 250px;
 .mem-img {
   height: 100%;
   display: none;
+}
+
+.empty {
+  border-color: white;
+  cursor: default;
+  background-color: white;
+  // pointer-events: none
 }
 
 .aside {
