@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="css/main.css">
   <title>Find the pair</title>
 
+  <script defer src='js/main.js'></script>
+
 </head> 
 <body>
   <main class="game">
@@ -17,8 +19,13 @@
     <aside class="side">
       <div class="grid-size">
         <p>Size</p>
-        <select id="select-size">
+        <select id="select-size" onchange="changeSize()">
           <option selected="selected" value="2">2x2</option>
+          <option value="4">4x4</option>
+          <option value="6">6x6</option>
+          <option value="8">8x8</option>
+          <option value="10">10x10</option>
+          <option value="12">12x12</option>
         </select>
       </div>
       <input type="submit" name="restart" value="Restart" onclick="reset()">
@@ -26,8 +33,6 @@
     </aside>
     
   </main>
-
-  <script src='js/main.js'></script>
 
 </body>
 </html>

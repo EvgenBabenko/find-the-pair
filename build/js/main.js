@@ -37,7 +37,7 @@ init();
 
 
 //-------------------------------------------
-//---------------MAIN LOGIC
+//---------------MAIN FUNCTIONAL
 //-------------------------------------------
 
 
@@ -148,7 +148,7 @@ function reset() {
     grid.firstElementChild.remove();
   }
 
-  init();
+  changeSize();
 }
 
 
@@ -172,4 +172,20 @@ function shuffle(array) {
   });
 
   return result;
+}
+
+
+//-------------------------------------------
+//---------------SIZE FIELD
+//-------------------------------------------
+
+
+function changeSize() {
+  gridSize = document.getElementById('select-size').value;
+
+  while (grid.firstElementChild) {
+    grid.firstElementChild.remove();
+  }
+
+  init(gridSize);
 }
