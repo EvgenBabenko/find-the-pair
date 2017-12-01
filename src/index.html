@@ -14,17 +14,20 @@
     <div class="grid">
     </div>
       
-    <aside class="aside">
-      <select id="selectSize" onchange="changeSize()">
-        <option value="2">2x2</option>
-        <option selected="selected" value="4">4x4</option>
-      </select>
-      <input type="submit" name="restart" value="Restart" onclick="restart()">
+    <aside class="side">
+      <div class="grid-size">
+        <p>Size</p>
+        <select id="select-size">
+          <option selected="selected" value="2">2x2</option>
+        </select>
+      </div>
+      <input type="submit" name="restart" value="Restart" onclick="reset()">
+      <p class="message"></p>
     </aside>
     
   </main>
 
   <script src='js/main.js'></script>
-  
+
 </body>
 </html>
