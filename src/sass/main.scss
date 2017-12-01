@@ -80,10 +80,18 @@ $width-grid: 80%;
 $width-aside: 100% - $width-grid;
 $height: 250px;
 
-.game {
+.game-box {
   display: flex;
+  margin: 0 auto;
+  width: 800px;
 
-  // width: 100%;
+  &.ligth {
+    background-color: blue;
+  }
+
+  &.dark {
+    background-color: green;
+  }
 }
 
 .grid {
@@ -92,15 +100,25 @@ $height: 250px;
 }
 
 .mem-card {
-  background-color: lightyellow;
+  
   // width: 100px;
   // height: 100px;
   cursor: pointer;
   float: left;
 
-  border: 1px solid red;
+  
   border-radius: 10px;
   overflow: hidden;
+
+  &.ligth {
+    background-color: lemonchiffon;
+    border: 1px solid red;
+  }
+
+  &.dark {
+    background-color: antiquewhite;
+    border: 1px solid grey;
+  }
 }
 
 .mem-img {
@@ -115,6 +133,9 @@ $height: 250px;
   // pointer-events: none
 }
 
-.aside {
+.side {
+  width: 150px;
+  padding: 20px;
   // width: $width-aside;
 }
+

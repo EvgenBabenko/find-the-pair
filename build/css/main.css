@@ -129,20 +129,34 @@ body {
   font-family: sans-serif;
   font-size: 1.1rem
 }
-.game {
-  display: flex
+.game-box {
+  display: flex;
+  margin: 0 auto;
+  width: 800px
+}
+.game-box.ligth {
+  background-color: #00f
+}
+.game-box.dark {
+  background-color: green
 }
 .grid {
   width: 520px;
   height: 520px
 }
 .mem-card {
-  background-color: #ffffe0;
   cursor: pointer;
   float: left;
-  border: 1px solid red;
   border-radius: 10px;
   overflow: hidden
+}
+.mem-card.ligth {
+  background-color: #fffacd;
+  border: 1px solid red
+}
+.mem-card.dark {
+  background-color: #faebd7;
+  border: 1px solid grey
 }
 .mem-img {
   height: 100%;
@@ -152,4 +166,8 @@ body {
   border-color: #fff;
   cursor: default;
   background-color: #fff
+}
+.side {
+  width: 150px;
+  padding: 20px
 }

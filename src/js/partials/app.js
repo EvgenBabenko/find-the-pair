@@ -6,6 +6,7 @@ let pairOfCard;
 let countClick;
 let countFindedPair;
 let gridSize;
+let themePrev;
 
 const appPath = '../img/';
 const arr = ['animals-bunny.jpg', 'animals-bunny-2.jpg', 'animals-cat.jpg', 'animals-cat-2.jpg', 'animals-dog.jpg', 'animals-dog-2.jpg', 'animals-horse.jpg', 'animals-horse-2.jpg', 'architecture-london-towerbridge.jpg'];
@@ -31,6 +32,7 @@ function init(gridSize = 2) {
   renderGrid(gridSize);
 
   grid.addEventListener('click', clickCard);
+  setTheme();
 }
 
 init();
@@ -49,25 +51,27 @@ function createGrid() {
   for (let i = 0; i < totalCards; i++) {
     console.log(i);
     let div = document.createElement('div');
-    div.className = 'mem-card';
+    div.className = 'mem-card theme';
     let img = document.createElement('img');
     img.className = 'mem-img';
     grid.appendChild(div);
     div.appendChild(img);
     img.src = appPath + newArray[i];
   }
+
 }
 
 
 function renderGrid(gridSize) {
+  // debugger
   const gridWidth = document.querySelector('.grid').offsetWidth;
 
   let cardSize = gridWidth / gridSize;
 
   let card = [...document.querySelectorAll('.mem-card')];
   card.forEach(elem => {
-    elem.style.width = cardSize + 'px';
-    elem.style.height = cardSize + 'px';
+    elem.style.width = `${cardSize}px`;
+    elem.style.height = `${cardSize}px`;
   });
 }
 
@@ -109,6 +113,7 @@ function hideCards() {
   setTimeout(() => {
     pairOfCard.forEach(elem => {
       elem.parentNode.classList.add('empty');
+      elem.parentNode.classList.remove(`${themePrev}`);
       hide(elem);
     });
     pairOfCard = [];
@@ -148,7 +153,7 @@ function reset() {
     grid.firstElementChild.remove();
   }
 
-  changeSize();
+  setSize();
 }
 
 
@@ -180,7 +185,7 @@ function shuffle(array) {
 //-------------------------------------------
 
 
-function changeSize() {
+function setSize() {
   gridSize = document.getElementById('select-size').value;
 
   while (grid.firstElementChild) {
@@ -188,4 +193,26 @@ function changeSize() {
   }
 
   init(gridSize);
+}
+
+
+//-------------------------------------------
+//---------------THEMES
+//-------------------------------------------
+
+
+function setTheme() {
+  let theme = document.getElementById('select-theme').value;
+  let listElement = [...document.querySelectorAll('.theme')];
+
+  listElement.forEach(elem => {
+    if (elem.classList.contains(`${themePrev}`)) {
+      elem.classList.remove(`${themePrev}`);
+    }
+    if (elem.classList.contains('empty'))
+      return;
+    elem.classList.add(`${theme}`);
+  });
+
+  themePrev = theme;
 }
