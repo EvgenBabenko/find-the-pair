@@ -76,21 +76,36 @@ body {
 //---------------MAIN
 //-------------------------------------------
 
-$width-grid: 80%;
-$width-aside: 100% - $width-grid;
-$height: 250px;
-
 .game-box {
+  position: relative;
   display: flex;
+  width: 700px;
   margin: 0 auto;
-  width: 800px;
+  padding: 10px;
 
-  &.ligth {
+  border: 5px solid red;
+
+  &.theme-ligth {
     background-color: blue;
   }
 
-  &.dark {
+  &.theme-dark {
     background-color: green;
+  }
+
+  .alert {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    width: 250px;
+    height: 100px;
+    top: calc(50% - 100px / 2);
+    left: calc(50% - 150px / 2 - 250px / 2);
+    font-size: 7rem;
+    text-transform: uppercase;
+
+    background-color: red;
   }
 }
 
@@ -100,41 +115,50 @@ $height: 250px;
 }
 
 .mem-card {
-  
-  // width: 100px;
-  // height: 100px;
-  cursor: pointer;
   float: left;
 
-  
   border-radius: 10px;
-  overflow: hidden;
 
-  &.ligth {
+  overflow: hidden;
+  cursor: pointer;
+
+  &.selected {
+    background-color: white;
+
+    .mem-img {
+      display: block;
+    }
+  }
+
+  &.theme-ligth {
     background-color: lemonchiffon;
     border: 1px solid red;
   }
 
-  &.dark {
+  &.theme-dark {
     background-color: antiquewhite;
     border: 1px solid grey;
   }
 }
 
 .mem-img {
-  height: 100%;
   display: none;
+  height: 100%;
+  padding: 2%;
+
+  border-radius: 5%;
 }
 
 .empty {
   border-color: white;
-  cursor: default;
   background-color: white;
+
+  cursor: default;
   pointer-events: none
 }
 
 .side {
-  width: 150px;
+  width: calc(100% - 520px);
   padding: 20px;
   // width: $width-aside;
 }

@@ -130,46 +130,70 @@ body {
   font-size: 1.6rem
 }
 .game-box {
+  position: relative;
   display: flex;
+  width: 700px;
   margin: 0 auto;
-  width: 800px
+  padding: 10px;
+  border: 5px solid red
 }
-.game-box.ligth {
+.game-box.theme-ligth {
   background-color: #00f
 }
-.game-box.dark {
+.game-box.theme-dark {
   background-color: green
+}
+.game-box .alert {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 250px;
+  height: 100px;
+  top: calc(50% - 100px / 2);
+  left: calc(50% - 150px / 2 - 250px / 2);
+  font-size: 7rem;
+  text-transform: uppercase;
+  background-color: red
 }
 .grid {
   width: 520px;
   height: 520px
 }
 .mem-card {
-  cursor: pointer;
   float: left;
   border-radius: 10px;
-  overflow: hidden
+  overflow: hidden;
+  cursor: pointer
 }
-.mem-card.ligth {
+.mem-card.selected {
+  background-color: #fff
+}
+.mem-card.selected .mem-img {
+  display: block
+}
+.mem-card.theme-ligth {
   background-color: #fffacd;
   border: 1px solid red
 }
-.mem-card.dark {
+.mem-card.theme-dark {
   background-color: #faebd7;
   border: 1px solid grey
 }
 .mem-img {
+  display: none;
   height: 100%;
-  display: none
+  padding: 2%;
+  border-radius: 5%
 }
 .empty {
   border-color: #fff;
-  cursor: default;
   background-color: #fff;
+  cursor: default;
   pointer-events: none
 }
 .side {
-  width: 150px;
+  width: calc(100% - 520px);
   padding: 20px
 }
 .timer {

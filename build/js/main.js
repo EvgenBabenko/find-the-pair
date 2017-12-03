@@ -1,17 +1,18 @@
 // jshint esversion: 6
 
-const grid = document.querySelector('.grid');
+const gridContainer = document.querySelector('.grid');
 
 let pairOfCard;
 let countClick;
-let countFindedPair;
+let countFindedPairs;
 let gridSize;
 
-let themePrev;
+let themeNow;
 
 let t = new Date();
-t.setHours(0, 0, 10, 0);
+t.setHours(0, 0, 0, 0);
 let s = new Date();
+let timerID;
 
 const appPath = '../img/';
 const arr = ['animals-bunny.jpg', 'animals-bunny-2.jpg', 'animals-cat.jpg', 'animals-cat-2.jpg', 'animals-dog.jpg', 'animals-dog-2.jpg', 'animals-horse.jpg', 'animals-horse-2.jpg', 'architecture-london-towerbridge.jpg'];
@@ -23,24 +24,23 @@ const arr = ['animals-bunny.jpg', 'animals-bunny-2.jpg', 'animals-cat.jpg', 'ani
 
 
 function init(gridSize = 2) {
-  // debugger
   console.log('gridSize', gridSize);
   pairOfCard = [];
   countClick = 0;
-  countFindedPair = 0;
+  countFindedPairs = 0;
 
   totalCards = parseInt(gridSize * gridSize, 10);
   totalPairs = totalCards / 2;
-  grid.style.pointerEvents = 'all';
+  gridContainer.style.pointerEvents = 'all';
   t = new Date();
-  t.setHours(0, 0, 10, 0);
+  t.setHours(0, 0, 0, 0);
   s = new Date();
 
   message('Find all the pairs!');
   createGrid();
   renderGrid(gridSize);
 
-  grid.addEventListener('click', clickCard);
+  gridContainer.addEventListener('click', clickCard);
   setTheme();
 
   timer();
@@ -55,7 +55,6 @@ init();
 
 
 function createGrid() {
-  // debugger
   let newArray = createArray();
   console.log('newArray', newArray);
 
@@ -65,7 +64,7 @@ function createGrid() {
     div.className = 'mem-card theme';
     let img = document.createElement('img');
     img.className = 'mem-img';
-    grid.appendChild(div);
+    gridContainer.appendChild(div);
     div.appendChild(img);
     img.src = appPath + newArray[i];
   }
@@ -74,7 +73,6 @@ function createGrid() {
 
 
 function renderGrid(gridSize) {
-  // debugger
   const gridWidth = document.querySelector('.grid').offsetWidth;
 
   let cardSize = gridWidth / gridSize;
@@ -88,44 +86,59 @@ function renderGrid(gridSize) {
 
 
 function clickCard(e) {
-  if (!e.target.classList.contains('mem-card')) {
+  if (!e.target.classList.contains('mem-card'))
     return;
-  }
 
-  show(e.target.firstElementChild);
+  const gh = findClass([...e.target.classList]);
+  console.log(gh);
+  e.target.classList.remove(gh);
+  e.target.classList.add('selected');
 
   countClick++;
   console.log('number of click', countClick);
-  pairOfCard.push(e.target.firstElementChild);
+  pairOfCard.push(e.target);
   checkClick();
 }
 
 
+function findClass(array) {
+  const result = array
+    .toString()
+    .match(/[\w\-]*theme-[\w\-]*/gi)
+    .toString();
+
+  return result;
+}
+
+
 function checkClick() {
-  if (pairOfCard.length == 2 && pairOfCard[0].src === pairOfCard[1].src) {
+  if (pairOfCard.length == 2 && pairOfCard[0].firstElementChild.src === pairOfCard[1].firstElementChild.src) {
     hideCards();
-    countFindedPair++;
+    countFindedPairs++;
     endGame();
   } else if (pairOfCard.length == 2) {
     closeCards();
   }
 
-  message(`You found ${countFindedPair} out of ${totalPairs} pairs with ${countClick / 2} tries.`);
+  message(`You found ${countFindedPairs} out of ${totalPairs} pairs with ${countClick / 2} tries.`);
 }
 
 
 function message(text) {
-  const messageText = document.querySelector('.message');
-  messageText.innerHTML = text;
+  document.querySelector('.message').innerHTML = text;
+}
+
+
+function alertText(text) {
+  document.querySelector('.alert').innerHTML = text;
 }
 
 
 function hideCards() {
   setTimeout(() => {
     pairOfCard.forEach(elem => {
-      elem.parentNode.classList.add('empty');
-      elem.parentNode.classList.remove(`${themePrev}`);
-      hide(elem);
+      elem.classList.remove(themeNow, 'selected');
+      elem.classList.add('empty');
     });
     pairOfCard = [];
   }, 500);
@@ -135,26 +148,18 @@ function hideCards() {
 function closeCards() {
   setTimeout(() => {
     pairOfCard.forEach(elem => {
-      hide(elem);
+      elem.classList.remove('selected');
+      elem.classList.add(themeNow);
     });
     pairOfCard = [];
   }, 500);
 }
 
 
-function show(node) {
-  node.style.display = 'block';
-}
-
-
-function hide(node) {
-  node.style.display = 'none';
-}
-
-
 function endGame() {
-  if (countFindedPair === totalPairs) {
+  if (countFindedPairs === totalPairs) {
     alert('Congratulations, you found them all!');
+    clearTimeout(timerID);
   }
 }
 
@@ -165,25 +170,16 @@ function reset() {
 
 
 function createArray() {
-  let newArr = [];
-  for (let i = 1; i <= totalPairs; i++) {
-    newArr.push(arr[i]);
-  }
-  console.log(newArr);
-  let doubleArr = [...shuffle(newArr), ...shuffle(newArr)];
-  console.log(doubleArr);
+  let newArr = arr.slice(0, totalPairs);
+  newArr.sort(shuffle);
+  let doubleArr = [...newArr.sort(shuffle), ...newArr.sort(shuffle)];
+  doubleArr.sort(shuffle);
   return doubleArr;
 }
 
 
-function shuffle(array) {
-  let result = [...array];
-
-  result.sort((a, b) => {
-    return Math.random() - 0.5;
-  });
-
-  return result;
+function shuffle(a, b) {
+  return Math.random() - 0.5;
 }
 
 
@@ -195,8 +191,8 @@ function shuffle(array) {
 function setSize() {
   gridSize = document.getElementById('select-size').value;
 
-  while (grid.firstElementChild) {
-    grid.firstElementChild.remove();
+  while (gridContainer.firstElementChild) {
+    gridContainer.firstElementChild.remove();
   }
 
   init(gridSize);
@@ -210,31 +206,19 @@ function setSize() {
 
 function setTheme() {
   let theme = document.getElementById('select-theme').value;
-  let listElementsContainsTheme = [...document.querySelectorAll('.theme')];
+  let listContainsTheme = [...document.querySelectorAll('.theme')];
 
-  listElementsContainsTheme.forEach(elem => {
-    if (elem.classList.contains(`${themePrev}`)) {
-      removeClassFromElement(`${themePrev}`, elem);
-      // elem.classList.remove(`${themePrev}`);
-    }
-    if (elem.classList.contains('empty')) {
+  listContainsTheme.forEach(elem => {
+    if (elem.classList.contains(themeNow))
+      elem.classList.remove(themeNow);
+
+    if (elem.classList.contains('empty'))
       return;
-    }
-    addClassToElement(`${theme}`, elem);
-    // elem.classList.add(`${theme}`);
+
+    elem.classList.add(theme);
   });
 
-  themePrev = theme;
-}
-
-
-function removeClassFromElement(elementClass, element) {
-  element.classList.remove(elementClass);
-}
-
-
-function addClassToElement(elementClass, element) {
-  element.classList.add(elementClass);
+  themeNow = theme;
 }
 
 
@@ -244,12 +228,23 @@ function addClassToElement(elementClass, element) {
 
 
 function timer() {
-  t = new Date(t.getTime() - (new Date()).getTime() + s.getTime());
+  t = new Date(t.getTime() + (new Date()).getTime() - s.getTime());
   document.querySelector('.timer-text').innerHTML = t.toLocaleTimeString();
   s = new Date();
-  let timerID = setTimeout(timer, 100);
-  if (t.getSeconds() <= 0) {
+  timerID = setTimeout(timer, 100);
+}
+
+
+function pause() {
+  if (s) {
     clearTimeout(timerID);
-    grid.style.pointerEvents = 'none';
+    s = false;
+    gridContainer.style.pointerEvents = 'none';
+    alertText('pause');
+  } else {
+    s = new Date();
+    timer();
+    gridContainer.style.pointerEvents = 'all';
+    alertText('');
   }
 }
