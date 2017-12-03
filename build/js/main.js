@@ -6,7 +6,12 @@ let pairOfCard;
 let countClick;
 let countFindedPair;
 let gridSize;
+
 let themePrev;
+
+let t = new Date();
+t.setHours(0, 0, 10, 0);
+let s = new Date();
 
 const appPath = '../img/';
 const arr = ['animals-bunny.jpg', 'animals-bunny-2.jpg', 'animals-cat.jpg', 'animals-cat-2.jpg', 'animals-dog.jpg', 'animals-dog-2.jpg', 'animals-horse.jpg', 'animals-horse-2.jpg', 'architecture-london-towerbridge.jpg'];
@@ -26,6 +31,10 @@ function init(gridSize = 2) {
 
   totalCards = parseInt(gridSize * gridSize, 10);
   totalPairs = totalCards / 2;
+  grid.style.pointerEvents = 'all';
+  t = new Date();
+  t.setHours(0, 0, 10, 0);
+  s = new Date();
 
   message('Find all the pairs!');
   createGrid();
@@ -33,6 +42,8 @@ function init(gridSize = 2) {
 
   grid.addEventListener('click', clickCard);
   setTheme();
+
+  timer();
 }
 
 init();
@@ -149,10 +160,6 @@ function endGame() {
 
 
 function reset() {
-  while (grid.firstElementChild) {
-    grid.firstElementChild.remove();
-  }
-
   setSize();
 }
 
@@ -203,16 +210,46 @@ function setSize() {
 
 function setTheme() {
   let theme = document.getElementById('select-theme').value;
-  let listElement = [...document.querySelectorAll('.theme')];
+  let listElementsContainsTheme = [...document.querySelectorAll('.theme')];
 
-  listElement.forEach(elem => {
+  listElementsContainsTheme.forEach(elem => {
     if (elem.classList.contains(`${themePrev}`)) {
-      elem.classList.remove(`${themePrev}`);
+      removeClassFromElement(`${themePrev}`, elem);
+      // elem.classList.remove(`${themePrev}`);
     }
-    if (elem.classList.contains('empty'))
+    if (elem.classList.contains('empty')) {
       return;
-    elem.classList.add(`${theme}`);
+    }
+    addClassToElement(`${theme}`, elem);
+    // elem.classList.add(`${theme}`);
   });
 
   themePrev = theme;
+}
+
+
+function removeClassFromElement(elementClass, element) {
+  element.classList.remove(elementClass);
+}
+
+
+function addClassToElement(elementClass, element) {
+  element.classList.add(elementClass);
+}
+
+
+//-------------------------------------------
+//---------------TIMER
+//-------------------------------------------
+
+
+function timer() {
+  t = new Date(t.getTime() - (new Date()).getTime() + s.getTime());
+  document.querySelector('.timer-text').innerHTML = t.toLocaleTimeString();
+  s = new Date();
+  let timerID = setTimeout(timer, 100);
+  if (t.getSeconds() <= 0) {
+    clearTimeout(timerID);
+    grid.style.pointerEvents = 'none';
+  }
 }
