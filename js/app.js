@@ -164,6 +164,7 @@ function endGame() {
     console.log('timeOfWin', timeOfWin);
     clearTimeout(timerID);
     scoring();
+    local_Storage();
     alert('Congratulations, you found them all!');
   }
 }
@@ -300,5 +301,33 @@ function scoring() {
   console.log('totalScore', totalScore);
   const fg = totalScore.toFixed(2);
   console.log(fg);
-  document.querySelector('.alert').innerHTML = fg;
+  document.querySelector('.result').innerHTML = `Your score is ${fg}`;
+}
+
+
+//-------------------------------------------
+//---------------LOCAL STORAGE
+//-------------------------------------------
+
+
+function local_Storage() {
+  const userName = prompt('Enter your name');
+  const date = new Date().toLocaleString();
+
+  let user = {
+    name: userName,
+    score: totalScore,
+    tab: gridSize
+  };
+
+  let serialObj = JSON.stringify(user);
+  localStorage.setItem(date, serialObj);
+
+  console.log(localStorage);
+  for (let key in localStorage) {
+    console.log(key);
+  }
+
+  // let returnedObj = JSON.parse(localStorage.getItem('myKey'));
+  // document.querySelector('.result').innerHTML = returnedObj.score;
 }

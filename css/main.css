@@ -90,7 +90,7 @@ body {
   background-color: blue;
 }
 
-.game-box.theme-ligth {
+.game-box.theme-dark {
   background-color: green;
 }
 
@@ -167,12 +167,17 @@ body {
   font-size: 3rem;
 }
 
-.list-grid-size a {
+/* .list-grid-size a {
   background-color: red;
   cursor: pointer;
   border: 1px solid black;
-}
+} */
 
-.list-grid-size a:hover {
+/* .list-grid-size a:hover {
   background-color: green;
-}
+} */
+
+/* .rotated {
+  transform: rotate3d(0, 1, 0, 180deg);
+  background-color: pink;
+} */
