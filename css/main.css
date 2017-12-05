@@ -79,7 +79,7 @@ body {
 .game-box {
   position: relative;
   display: flex;
-  width: 700px;
+  width: 760px;;
   margin: 0 auto;
   padding: 10px;
 
@@ -106,7 +106,7 @@ body {
   font-size: 7rem;
   text-transform: uppercase;
 
-  background-color: red;
+  background-color: #b6b4b4;
 }
 
 .grid {
@@ -167,15 +167,15 @@ body {
   font-size: 3rem;
 }
 
-/* .list-grid-size a {
+.tabs-grid-size a {
   background-color: red;
   cursor: pointer;
   border: 1px solid black;
-} */
+}
 
-/* .list-grid-size a:hover {
+.tabs-grid-size a:hover {
   background-color: green;
-} */
+}
 
 /* .rotated {
   transform: rotate3d(0, 1, 0, 180deg);

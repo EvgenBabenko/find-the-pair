@@ -3,7 +3,7 @@
 const gridContainer = document.querySelector('.grid');
 
 let pairOfCard;
-let countClick;
+let countTry;
 let countFindedPairs;
 let gridSize;
 
@@ -28,7 +28,7 @@ const arr = ['animals-bunny-2.jpg', 'animals-bunny.jpg', 'animals-cat-2.jpg', 'a
 function init(gridSize = 2) {
   console.log('gridSize', gridSize);
   pairOfCard = [];
-  countClick = 0;
+  countTry = 0;
   countFindedPairs = 0;
 
   totalCards = parseInt(gridSize * gridSize, 10);
@@ -46,6 +46,8 @@ function init(gridSize = 2) {
   setTheme();
 
   timer();
+
+  leaderboard();
 }
 
 init();
@@ -61,7 +63,6 @@ function createGrid() {
   console.log('newArray', newArray);
 
   for (let i = 0; i < totalCards; i++) {
-    console.log(i);
     let div = document.createElement('div');
     div.className = 'mem-card theme';
     let img = document.createElement('img');
@@ -70,7 +71,6 @@ function createGrid() {
     div.appendChild(img);
     img.src = appPath + newArray[i];
   }
-
 }
 
 
@@ -91,13 +91,10 @@ function clickCard(e) {
   if (!e.target.classList.contains('mem-card'))
     return;
 
-  const gh = findClass([...e.target.classList]);
-  console.log(gh);
-  e.target.classList.remove(gh);
+  const findedClass = findClass([...e.target.classList]);
+  e.target.classList.remove(findedClass);
   e.target.classList.add('selected');
 
-  countClick++;
-  console.log('number of click', countClick);
   pairOfCard.push(e.target);
   checkClick();
 }
@@ -117,12 +114,14 @@ function checkClick() {
   if (pairOfCard.length == 2 && pairOfCard[0].firstElementChild.src === pairOfCard[1].firstElementChild.src) {
     hideCards();
     countFindedPairs++;
+    countTry++;
     endGame();
   } else if (pairOfCard.length == 2) {
+    countTry++;
     closeCards();
   }
 
-  message(`You found ${countFindedPairs} out of ${totalPairs} pairs with ${countClick / 2} tries.`);
+  message(`You found ${countFindedPairs} out of ${totalPairs} pairs with ${countTry} tries.`);
 }
 
 
@@ -165,6 +164,7 @@ function endGame() {
     clearTimeout(timerID);
     scoring();
     local_Storage();
+    leaderboard();
     alert('Congratulations, you found them all!');
   }
 }
@@ -246,11 +246,13 @@ function pause() {
     clearTimeout(timerID);
     s = false;
     gridContainer.style.pointerEvents = 'none';
+    document.querySelector('.alert').style.display = 'block';
     alertText('pause');
   } else {
     s = new Date();
     timer();
     gridContainer.style.pointerEvents = 'all';
+    document.querySelector('.alert').style.display = 'none';
     alertText('');
   }
 }
@@ -272,7 +274,7 @@ function scoring() {
       this.y2 = y2;
       this.x = x;
     }
-    gg() {
+    getScore() {
       // The scoring is based on equation
       // (x - x1) / (x2 - x1) = (y - y1) / (y2 - y1);
 
@@ -291,17 +293,17 @@ function scoring() {
 
 
   const timeScore = new Score('timeScore', minTime, maxTime, 1, 0, t.getSeconds());
-  const g1 = timeScore.gg();
+  const g1 = timeScore.getScore();
 
-  const triesScore = new Score('triesScore', minTry, maxTry, 1, 0, countClick / 2);
+  const triesScore = new Score('triesScore', minTry, maxTry, 1, 0, countTry);
 
-  const g2 = triesScore.gg();
+  const g2 = triesScore.getScore();
 
   totalScore = g1 * g2 * 100;
   console.log('totalScore', totalScore);
   const fg = totalScore.toFixed(2);
   console.log(fg);
-  document.querySelector('.result').innerHTML = `Your score is ${fg}`;
+  // document.querySelector('.result').innerHTML = `Your score is ${fg}`;
 }
 
 
@@ -312,22 +314,111 @@ function scoring() {
 
 function local_Storage() {
   const userName = prompt('Enter your name');
-  const date = new Date().toLocaleString();
+  const date = new Date();
 
   let user = {
     name: userName,
-    score: totalScore,
+    date: date.toLocaleDateString(),
+    score: totalScore.toFixed(2),
     tab: gridSize
   };
 
   let serialObj = JSON.stringify(user);
-  localStorage.setItem(date, serialObj);
+  localStorage.setItem(date.toLocaleString(), serialObj);
 
-  console.log(localStorage);
-  for (let key in localStorage) {
-    console.log(key);
-  }
+
 
   // let returnedObj = JSON.parse(localStorage.getItem('myKey'));
   // document.querySelector('.result').innerHTML = returnedObj.score;
+}
+
+
+//-------------------------------------------
+//---------------LEADERBOARD
+//-------------------------------------------
+
+
+function leaderboard() {
+  let selectSize = [...document.getElementById('select-size').children];
+  let resultsContainer = document.querySelector('.results');
+  let arrValue = [];
+  selectSize.forEach(elem => {
+    arrValue.push(elem.text);
+  });
+  console.log('arrValue', arrValue);
+
+  let listGridSize = document.querySelector('.tabs-grid-size');
+  for (let i = 0; i < arrValue.length; i++) {
+    let tagA = document.createElement('a');
+    tagA.innerHTML = arrValue[i];
+    listGridSize.appendChild(tagA);
+  }
+  console.log('listGridSize', listGridSize);
+
+  console.log(localStorage);
+  // for (let key in localStorage) {
+  //   console.log(key);
+  // }
+
+  let arrObj = Object.keys(localStorage);
+
+  let localStorageDB = [];
+
+  arrObj.forEach(key => {
+    let returnedObj;
+
+    try {
+      returnedObj = JSON.parse(localStorage.getItem(`${key}`));
+      if (!returnedObj.name && !returnedObj.date && !returnedObj.score && !returnedObj.tab) return;
+    } catch (err) {
+      return;
+    }
+
+    localStorageDB.push(returnedObj);
+  });
+
+  console.log('localStorageDB', localStorageDB);
+
+
+  function sortByField(arr, field) {
+    function byField(a, b) {
+      if (a[field] < b[field]) return 1;
+      if (a[field] > b[field]) return -1;
+    }
+    return arr.sort(byField);
+  }
+
+  function filterByField(arr, field, value) {
+    let result = [];
+    for (const elem of arr) {
+      if (elem[field] === value) {
+        result.push(elem);
+      }
+    }
+    return result;
+  }
+
+  function displayResult(arr, number = arr.length) {
+    let result = [];
+    for (let i = 0; i < number; i++) {
+      result.push(arr[i]);
+    }
+    return result;
+  }
+
+  let filtered = filterByField(localStorageDB, 'tab', '6');
+
+  console.log('filtered', filtered);
+
+
+  let sorted = sortByField(filtered, 'score');
+  console.log('sorted', sorted);
+
+  let displayed = displayResult(sorted);
+  console.log('displayed', displayed);
+
+  for (let i = 0; i < displayed.length; i++) {
+    let pTag = document.createElement('p');
+    resultsContainer.appendChild(pTag).innerHTML = `${displayed[i].name} ${displayed[i].date} ${displayed[i].score}`;
+  }
 }
