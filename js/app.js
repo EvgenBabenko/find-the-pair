@@ -97,6 +97,7 @@ function clickCard(e) {
 
   pairOfCard.push(e.target);
   checkClick();
+  animation(e.target);
 }
 
 
@@ -420,5 +421,35 @@ function leaderboard() {
   for (let i = 0; i < displayed.length; i++) {
     let pTag = document.createElement('p');
     resultsContainer.appendChild(pTag).innerHTML = `${displayed[i].name} ${displayed[i].date} ${displayed[i].score}`;
+  }
+}
+
+
+//-------------------------------------------
+//---------------ANIMATIONS
+//-------------------------------------------
+
+
+function animation(card) {
+  let x = 0;
+  let y = 1;
+  let z = 0;
+  let angle = 0;
+
+  card.style.transform = `rotate3d(${x}, ${y}, ${z}, ${angle}deg)`;
+
+  const duration = 1;
+
+  let rotateCardID = setInterval(rotateCard, duration);
+
+  function rotateCard() {
+    if (angle >= 180) {
+      console.log('angle < 180', angle);
+      clearInterval(rotateCardID);
+    } else {
+      console.log('angle', angle);
+      angle += 2;
+      card.style.transform = `rotate3d(${x}, ${y}, ${z}, ${angle}deg)`;
+    }
   }
 }
