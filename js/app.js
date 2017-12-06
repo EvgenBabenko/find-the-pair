@@ -49,6 +49,9 @@ function init(sizeOfGrid) {
   timer();
 
   leaderboard();
+
+  document.querySelector('.alert').style.display = 'none';
+  alertText('');
 }
 
 init();
@@ -78,9 +81,7 @@ function createGrid() {
 function renderGrid(gridSize) {
   // const gridWidth = document.querySelector('.grid').offsetWidth;
   const gridWidth = 520;
-  console.log('gridWidth', gridWidth);
   let cardSize = gridWidth / gridSize;
-  console.log('cardSize', cardSize);
 
   let card = [...document.querySelectorAll('.mem-card')];
   card.forEach(elem => {
@@ -94,10 +95,6 @@ function clickCard(e) {
   if (!e.target.classList.contains('mem-card'))
     return;
 
-  const findedClass = findClass([...e.target.classList]);
-  e.target.classList.remove(findedClass);
-  e.target.classList.add('selected');
-
   pairOfCard.push(e.target);
   checkClick();
   rotateAnimation(e.target);
@@ -107,8 +104,7 @@ function clickCard(e) {
 function findClass(array) {
   const result = array
     .toString()
-    .match(/[\w\-]*theme-[\w\-]*/gi)
-    .toString();
+    .match(/[\w\-]*theme-[\w\-]*/gi);
 
   return result;
 }
@@ -170,7 +166,6 @@ function endGame() {
     scoring();
     local_Storage().saveData();
     leaderboard();
-    alert('Congratulations, you found them all!');
   }
 }
 
@@ -252,7 +247,7 @@ function pause() {
     s = false;
     gridContainer.style.pointerEvents = 'none';
     document.querySelector('.alert').style.display = 'block';
-    alertText('pause');
+    alertText('Game is paused');
   } else {
     s = new Date();
     timer();
@@ -307,7 +302,9 @@ function scoring() {
   const fg = totalScore.toFixed(2);
   console.log(fg);
 
-  // document.querySelector('.result').innerHTML = `Your score is ${fg}`;
+
+  document.querySelector('.alert').style.display = 'block';
+  alertText(`Score is ${totalScore.toFixed(2)}`);
 }
 
 
@@ -320,7 +317,8 @@ function local_Storage() {
 
   return {
     saveData: function() {
-      const userName = prompt('Enter your name');
+      const userName = prompt(`Congratulations, you found them all!
+Enter your name`);
       const date = new Date();
       const userData = {
         name: userName,
@@ -334,7 +332,6 @@ function local_Storage() {
 
     getData: function(field, value) {
       let keysLocalStorage = Object.keys(localStorage);
-      console.log('keysLocalStorage', keysLocalStorage);
       let dataBase = [];
 
       keysLocalStorage.forEach(key => {
@@ -404,7 +401,6 @@ function leaderboard() {
   selectSize.forEach(elem => {
     arrValue.push(parseInt(elem.value, 10));
   });
-  console.log('arrValue', arrValue);
 
   let listGridSize = document.querySelector('.tabs-grid-size');
 
@@ -418,8 +414,6 @@ function leaderboard() {
     }
   }
 
-  console.log('listGridSize', listGridSize);
-
   console.log(localStorage);
 }
 
@@ -428,15 +422,10 @@ function clickTab(e) {
   if (!e.target.classList.contains('tab'))
     return;
 
-  let gt = [...e.target.classList];
-  console.log('gt', gt);
-  console.log('e.target', e.target);
+  let listTabs = [...e.target.classList];
+  listTabs.shift();
 
-  gt.shift();
-  console.log('gt', parseInt(gt, 10));
-
-
-  let localStorageDB = local_Storage().getData('tab', parseInt(gt, 10));
+  let localStorageDB = local_Storage().getData('tab', parseInt(listTabs, 10));
   console.log('localStorageDB', localStorageDB);
 
   let sorted = sortByField(localStorageDB, 'score');
@@ -449,6 +438,11 @@ function clickTab(e) {
 
   while (resultsContainer.firstElementChild) {
     resultsContainer.firstElementChild.remove();
+  }
+
+  if (displayed.length === 0) {
+    let pTag = document.createElement('p');
+    resultsContainer.appendChild(pTag).innerHTML = 'No data yet!';
   }
 
   for (let i = 0; i < displayed.length; i++) {
@@ -481,6 +475,14 @@ function rotateAnimation(card) {
     if (angle >= 180) {
       // console.log('angle < 180', angle);
       clearInterval(rotateCardID);
+    } else if (angle >= 90) {
+      // console.log('angle', angle);
+      angle += 2;
+      card.style.transform = `rotateY(${angle}deg)`;
+
+      const findedClass = findClass([...card.classList]);
+      card.classList.remove(findedClass);
+      card.classList.add('selected');
     } else {
       // console.log('angle', angle);
       angle += 2;
@@ -500,28 +502,29 @@ function getOffset(el) {
 
 
 function moveAnimation(card) {
+  // debugger
   let left = getOffset(card).left;
   let top = getOffset(card).top;
 
   console.log('left', left);
   console.log('top', top);
 
-  let endPositionX = 400;
-  let endPositionY = 400;
-  card.style.transform = `translate(${left}px, ${top}px)`;
+  let endPositionX = 0;
+  let endPositionY = 0;
+  // card.style.transform = `translate(${left}px, ${top}px)`;
 
-  const duration = 100;
+  const duration = 10;
 
   let moveCardID = setInterval(moveCard, duration);
 
   function moveCard() {
-    if (left >= endPositionX) {
+    if (left <= endPositionX) {
       console.log('translateX >= 255', left);
       clearInterval(moveCardID);
     } else {
-      console.log('translateX', left);
-      left += 2;
-      top += 2;
+      console.log('translateX', card, left);
+      left -= 2;
+      // top -= 2;
       card.style.transform = `translate(${left}px, ${top}px)`;
     }
   }

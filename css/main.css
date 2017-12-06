@@ -96,14 +96,14 @@ body {
 
 .game-box .alert {
   display: none;
-  align-items: center;
-  justify-content: center;
+  z-index: 1;
+  text-align: center;
   position: absolute;
   width: 250px;
   height: 100px;
   top: calc(50% - 100px / 2);
   left: calc(50% - 150px / 2 - 250px / 2);
-  font-size: 7rem;
+  font-size: 5rem;
   text-transform: uppercase;
 
   background-color: #b6b4b4;
@@ -158,11 +158,23 @@ body {
 
 .side {
   width: calc(100% - 520px);
-  padding: 20px;
+  padding-left: 20px;
+}
+
+.side > * {
+  padding-bottom: 20px;
+}
+
+.side div:last-of-type {
+  padding-bottom: 0px;
 }
 
 .timer {
   font-size: 3rem;
+}
+
+.tabs-grid-size {
+  padding-bottom: 10px;
 }
 
 .tabs-grid-size a {
@@ -174,8 +186,3 @@ body {
 .tabs-grid-size a:hover {
   background-color: green;
 }
-
-/* .rotated {
-  transform: rotate3d(0, 1, 0, 180deg);
-  background-color: pink;
-} */
