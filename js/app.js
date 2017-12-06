@@ -25,7 +25,8 @@ const arr = ['animals-bunny-2.jpg', 'animals-bunny.jpg', 'animals-cat-2.jpg', 'a
 //-------------------------------------------
 
 
-function init(gridSize = 2) {
+function init(sizeOfGrid) {
+  gridSize = sizeOfGrid || 2;
   console.log('gridSize', gridSize);
   pairOfCard = [];
   countTry = 0;
@@ -75,9 +76,11 @@ function createGrid() {
 
 
 function renderGrid(gridSize) {
-  const gridWidth = document.querySelector('.grid').offsetWidth;
-
+  // const gridWidth = document.querySelector('.grid').offsetWidth;
+  const gridWidth = 520;
+  console.log('gridWidth', gridWidth);
   let cardSize = gridWidth / gridSize;
+  console.log('cardSize', cardSize);
 
   let card = [...document.querySelectorAll('.mem-card')];
   card.forEach(elem => {
@@ -97,7 +100,7 @@ function clickCard(e) {
 
   pairOfCard.push(e.target);
   checkClick();
-  animation(e.target);
+  rotateAnimation(e.target);
 }
 
 
@@ -141,6 +144,7 @@ function hideCards() {
     pairOfCard.forEach(elem => {
       elem.classList.remove(themeNow, 'selected');
       elem.classList.add('empty');
+      // moveAnimation(elem);
     });
     pairOfCard = [];
   }, 500);
@@ -164,7 +168,7 @@ function endGame() {
     console.log('timeOfWin', timeOfWin);
     clearTimeout(timerID);
     scoring();
-    local_Storage();
+    local_Storage().saveData();
     leaderboard();
     alert('Congratulations, you found them all!');
   }
@@ -196,7 +200,7 @@ function shuffle(a, b) {
 
 
 function setSize() {
-  gridSize = document.getElementById('select-size').value;
+  gridSize = parseInt(document.getElementById('select-size').value, 10);
 
   while (gridContainer.firstElementChild) {
     gridContainer.firstElementChild.remove();
@@ -265,6 +269,10 @@ function pause() {
 
 
 function scoring() {
+  const minTry = 3 * totalPairs / 2;
+  const maxTry = minTry * 4;
+  const minTime = minTry / 2;
+  const maxTime = minTry * 8;
 
   class Score {
     constructor(name, x1, x2, y1, y2, x) {
@@ -275,6 +283,7 @@ function scoring() {
       this.y2 = y2;
       this.x = x;
     }
+
     getScore() {
       // The scoring is based on equation
       // (x - x1) / (x2 - x1) = (y - y1) / (y2 - y1);
@@ -285,13 +294,6 @@ function scoring() {
       return (this.x * this.y1 - this.x * this.y2 + this.x1 * this.y2 - this.x2 * this.y1) / (this.x1 - this.x2);
     }
   }
-
-
-  const minTry = 3 * totalPairs / 2;
-  const maxTry = minTry * 4;
-  const minTime = minTry / 2;
-  const maxTime = minTry * 8;
-
 
   const timeScore = new Score('timeScore', minTime, maxTime, 1, 0, t.getSeconds());
   const g1 = timeScore.getScore();
@@ -304,6 +306,7 @@ function scoring() {
   console.log('totalScore', totalScore);
   const fg = totalScore.toFixed(2);
   console.log(fg);
+
   // document.querySelector('.result').innerHTML = `Your score is ${fg}`;
 }
 
@@ -314,23 +317,78 @@ function scoring() {
 
 
 function local_Storage() {
-  const userName = prompt('Enter your name');
-  const date = new Date();
 
-  let user = {
-    name: userName,
-    date: date.toLocaleDateString(),
-    score: totalScore.toFixed(2),
-    tab: gridSize
+  return {
+    saveData: function() {
+      const userName = prompt('Enter your name');
+      const date = new Date();
+      const userData = {
+        name: userName,
+        date: date,
+        score: totalScore,
+        tab: gridSize
+      };
+      let serialObj = JSON.stringify(userData);
+      localStorage.setItem(date.toLocaleString(), serialObj);
+    },
+
+    getData: function(field, value) {
+      let keysLocalStorage = Object.keys(localStorage);
+      console.log('keysLocalStorage', keysLocalStorage);
+      let dataBase = [];
+
+      keysLocalStorage.forEach(key => {
+        let returnedObj;
+
+        try {
+          returnedObj = JSON.parse(localStorage.getItem(`${key}`), (key, value) => {
+            if (key === 'date') return new Date(value);
+            return value;
+          });
+
+          if (!returnedObj.name && !returnedObj.date && !returnedObj.score && !returnedObj.tab)
+            return;
+        } catch (err) {
+          return;
+        }
+
+        dataBase.push(returnedObj);
+      });
+
+      let filteredDB = filterByField(dataBase, field, value);
+      return filteredDB;
+    }
+
   };
-
-  let serialObj = JSON.stringify(user);
-  localStorage.setItem(date.toLocaleString(), serialObj);
+}
 
 
+function filterByField(arr, field, value) {
+  let result = [];
+  for (const elem of arr) {
+    if (elem[field] === value) {
+      result.push(elem);
+    }
+  }
+  return result;
+}
 
-  // let returnedObj = JSON.parse(localStorage.getItem('myKey'));
-  // document.querySelector('.result').innerHTML = returnedObj.score;
+
+function sortByField(arr, field) {
+  function byField(a, b) {
+    if (a[field] < b[field]) return 1;
+    if (a[field] > b[field]) return -1;
+  }
+  return arr.sort(byField);
+}
+
+
+function displayResult(arr, number = arr.length) {
+  let result = [];
+  for (let i = 0; i < number; i++) {
+    result.push(arr[i]);
+  }
+  return result;
 }
 
 
@@ -344,85 +402,66 @@ function leaderboard() {
   let resultsContainer = document.querySelector('.results');
   let arrValue = [];
   selectSize.forEach(elem => {
-    arrValue.push(elem.text);
+    arrValue.push(parseInt(elem.value, 10));
   });
   console.log('arrValue', arrValue);
 
   let listGridSize = document.querySelector('.tabs-grid-size');
-  for (let i = 0; i < arrValue.length; i++) {
-    let tagA = document.createElement('a');
-    tagA.innerHTML = arrValue[i];
-    listGridSize.appendChild(tagA);
+
+  if (!listGridSize.firstElementChild) {
+    for (let i = 0; i < arrValue.length; i++) {
+      let tagA = document.createElement('a');
+      tagA.innerHTML = `${arrValue[i]}x${arrValue[i]}`;
+      listGridSize.appendChild(tagA).classList.add('tab', arrValue[i]);
+
+      listGridSize.addEventListener('click', clickTab);
+    }
   }
+
   console.log('listGridSize', listGridSize);
 
   console.log(localStorage);
-  // for (let key in localStorage) {
-  //   console.log(key);
-  // }
+}
 
-  let arrObj = Object.keys(localStorage);
 
-  let localStorageDB = [];
+function clickTab(e) {
+  if (!e.target.classList.contains('tab'))
+    return;
 
-  arrObj.forEach(key => {
-    let returnedObj;
+  let gt = [...e.target.classList];
+  console.log('gt', gt);
+  console.log('e.target', e.target);
 
-    try {
-      returnedObj = JSON.parse(localStorage.getItem(`${key}`));
-      if (!returnedObj.name && !returnedObj.date && !returnedObj.score && !returnedObj.tab) return;
-    } catch (err) {
-      return;
-    }
+  gt.shift();
+  console.log('gt', parseInt(gt, 10));
 
-    localStorageDB.push(returnedObj);
-  });
 
+  let localStorageDB = local_Storage().getData('tab', parseInt(gt, 10));
   console.log('localStorageDB', localStorageDB);
 
-
-  function sortByField(arr, field) {
-    function byField(a, b) {
-      if (a[field] < b[field]) return 1;
-      if (a[field] > b[field]) return -1;
-    }
-    return arr.sort(byField);
-  }
-
-  function filterByField(arr, field, value) {
-    let result = [];
-    for (const elem of arr) {
-      if (elem[field] === value) {
-        result.push(elem);
-      }
-    }
-    return result;
-  }
-
-  function displayResult(arr, number = arr.length) {
-    let result = [];
-    for (let i = 0; i < number; i++) {
-      result.push(arr[i]);
-    }
-    return result;
-  }
-
-  let filtered = filterByField(localStorageDB, 'tab', '6');
-
-  console.log('filtered', filtered);
-
-
-  let sorted = sortByField(filtered, 'score');
+  let sorted = sortByField(localStorageDB, 'score');
   console.log('sorted', sorted);
 
   let displayed = displayResult(sorted);
   console.log('displayed', displayed);
 
-  for (let i = 0; i < displayed.length; i++) {
-    let pTag = document.createElement('p');
-    resultsContainer.appendChild(pTag).innerHTML = `${displayed[i].name} ${displayed[i].date} ${displayed[i].score}`;
+  let resultsContainer = document.querySelector('.results');
+
+  while (resultsContainer.firstElementChild) {
+    resultsContainer.firstElementChild.remove();
   }
+
+  for (let i = 0; i < displayed.length; i++) {
+    let name = displayed[i].name;
+    let date = (displayed[i].date).toLocaleDateString();
+    let score = (displayed[i].score).toFixed(2);
+
+    let pTag = document.createElement('p');
+    resultsContainer.appendChild(pTag).innerHTML = `${name} ${date} ${score}`;
+  }
+
 }
+
 
 
 //-------------------------------------------
@@ -430,13 +469,9 @@ function leaderboard() {
 //-------------------------------------------
 
 
-function animation(card) {
-  let x = 0;
-  let y = 1;
-  let z = 0;
+function rotateAnimation(card) {
   let angle = 0;
-
-  card.style.transform = `rotate3d(${x}, ${y}, ${z}, ${angle}deg)`;
+  card.style.transform = `rotateY(${angle}deg)`;
 
   const duration = 1;
 
@@ -444,12 +479,50 @@ function animation(card) {
 
   function rotateCard() {
     if (angle >= 180) {
-      console.log('angle < 180', angle);
+      // console.log('angle < 180', angle);
       clearInterval(rotateCardID);
     } else {
-      console.log('angle', angle);
+      // console.log('angle', angle);
       angle += 2;
-      card.style.transform = `rotate3d(${x}, ${y}, ${z}, ${angle}deg)`;
+      card.style.transform = `rotateY(${angle}deg)`;
+    }
+  }
+}
+
+
+function getOffset(el) {
+  el = el.getBoundingClientRect();
+  return {
+    left: el.left + window.scrollX,
+    top: el.top + window.scrollY
+  };
+}
+
+
+function moveAnimation(card) {
+  let left = getOffset(card).left;
+  let top = getOffset(card).top;
+
+  console.log('left', left);
+  console.log('top', top);
+
+  let endPositionX = 400;
+  let endPositionY = 400;
+  card.style.transform = `translate(${left}px, ${top}px)`;
+
+  const duration = 100;
+
+  let moveCardID = setInterval(moveCard, duration);
+
+  function moveCard() {
+    if (left >= endPositionX) {
+      console.log('translateX >= 255', left);
+      clearInterval(moveCardID);
+    } else {
+      console.log('translateX', left);
+      left += 2;
+      top += 2;
+      card.style.transform = `translate(${left}px, ${top}px)`;
     }
   }
 }
