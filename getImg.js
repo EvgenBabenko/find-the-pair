@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-const path = './src/img';
+const path = './img';
 
 function putFilesToArray(path) {
   'use strict';

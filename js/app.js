@@ -17,7 +17,7 @@ let timerID;
 let totalScore;
 
 const appPath = './img/';
-const arr = ['animals-bunny-2.jpg', 'animals-bunny.jpg', 'animals-cat-2.jpg', 'animals-cat.jpg', 'animals-dog-2.jpg', 'animals-dog.jpg', 'animals-horse-2.jpg', 'animals-horse.jpg', 'architecture-london-towerbridge.jpg', 'architecture-moscow-redsquare.jpg', 'architecture-nederlanden.jpg', 'architecture-newyork-publiclibrary.jpg', 'architecture-paris-eiffeltower.jpg', 'cities-tokyo-night.jpg', 'flowers-reddahlia.jpg', 'flowers-waterlillies.jpg', 'flowers-windclock.jpg', 'landscape-1.jpg', 'landscape-2.jpg', 'landscape-australia-outback.jpg', 'landscape-netherlands-deurningen.jpg', 'landscape-us-edgewood.jpg', 'x_b108ad63.jpg', 'бриллиант06+vp.jpg', 'букет.jpg'];
+const listImages = ['animals-bunny-2.jpg','animals-bunny.jpg','animals-cat-2.jpg','animals-cat.jpg','animals-dog-2.jpg','animals-dog.jpg','animals-horse-2.jpg','animals-horse.jpg','architecture-london-towerbridge.jpg','architecture-moscow-redsquare.jpg','architecture-nederlanden.jpg','architecture-newyork-publiclibrary.jpg','architecture-paris-eiffeltower.jpg','cities-tokyo-night.jpg','diamond.jpg','flower.jpg','flowers-reddahlia.jpg','flowers-waterlillies.jpg','flowers-windclock.jpg','flowers.jpg','landscape-1.jpg','landscape-2.jpg','landscape-australia-outback.jpg','landscape-netherlands-deurningen.jpg','landscape-us-edgewood.jpg'];
 
 
 //-------------------------------------------
@@ -31,6 +31,7 @@ function init(sizeOfGrid) {
   pairOfCard = [];
   countTry = 0;
   countFindedPairs = 0;
+
 
   totalCards = parseInt(gridSize * gridSize, 10);
   totalPairs = totalCards / 2;
@@ -67,13 +68,10 @@ function createGrid() {
   console.log('newArray', newArray);
 
   for (let i = 0; i < totalCards; i++) {
-    let div = document.createElement('div');
-    div.className = 'mem-card theme';
-    let img = document.createElement('img');
-    img.className = 'mem-img';
+    const img = createNode('img', { className: 'mem-img', src: appPath + newArray[i] });
+    const div = createNode('div', { className: 'mem-card theme' }, img);
+
     gridContainer.appendChild(div);
-    div.appendChild(img);
-    img.src = appPath + newArray[i];
   }
 }
 
@@ -101,15 +99,6 @@ function clickCard(e) {
 }
 
 
-function findClass(array) {
-  const result = array
-    .toString()
-    .match(/[\w\-]*theme-[\w\-]*/gi);
-
-  return result;
-}
-
-
 function checkClick() {
   if (pairOfCard.length == 2 && pairOfCard[0].firstElementChild.src === pairOfCard[1].firstElementChild.src) {
     hideCards();
@@ -126,12 +115,12 @@ function checkClick() {
 
 
 function message(text) {
-  document.querySelector('.message').innerHTML = text;
+  document.querySelector('.message').textContent = text;
 }
 
 
 function alertText(text) {
-  document.querySelector('.alert').innerHTML = text;
+  document.querySelector('.alert').textContent = text;
 }
 
 
@@ -176,16 +165,12 @@ function reset() {
 
 
 function createArray() {
-  let newArr = arr.slice(0, totalPairs);
-  newArr.sort(shuffle);
-  let doubleArr = [...newArr.sort(shuffle), ...newArr.sort(shuffle)];
-  doubleArr.sort(shuffle);
+  const newArr = listImages.slice(0, totalPairs)
+    .sort(shuffle);
+  const doubleArr = [...newArr.sort(shuffle), ...newArr.sort(shuffle)]
+    .sort(shuffle);
+
   return doubleArr;
-}
-
-
-function shuffle(a, b) {
-  return Math.random() - 0.5;
 }
 
 
@@ -235,7 +220,7 @@ function setTheme() {
 
 function timer() {
   t = new Date(t.getTime() + (new Date()).getTime() - s.getTime());
-  document.querySelector('.timer-text').innerHTML = t.toLocaleTimeString();
+  document.querySelector('.timer-text').textContent = t.toLocaleTimeString();
   s = new Date();
   timerID = setTimeout(timer, 100);
 }
@@ -270,8 +255,7 @@ function scoring() {
   const maxTime = minTry * 8;
 
   class Score {
-    constructor(name, x1, x2, y1, y2, x) {
-      this.name = name;
+    constructor(x1, x2, y1, y2, x) {
       this.x1 = x1;
       this.x2 = x2;
       this.y1 = y1;
@@ -290,19 +274,14 @@ function scoring() {
     }
   }
 
-  const timeScore = new Score('timeScore', minTime, maxTime, 1, 0, t.getSeconds());
-  const g1 = timeScore.getScore();
+  const time = new Score(minTime, maxTime, 1, 0, t.getSeconds());
+  const timeScore = time.getScore();
 
-  const triesScore = new Score('triesScore', minTry, maxTry, 1, 0, countTry);
+  const tries = new Score(minTry, maxTry, 1, 0, countTry);
+  const triesScore = tries.getScore();
 
-  const g2 = triesScore.getScore();
-
-  totalScore = g1 * g2 * 100;
-  console.log('totalScore', totalScore);
-  const fg = totalScore.toFixed(2);
-  console.log(fg);
-
-
+  totalScore = timeScore * triesScore * 100;
+  
   document.querySelector('.alert').style.display = 'block';
   alertText(`Score is ${totalScore.toFixed(2)}`);
 }
@@ -326,12 +305,13 @@ Enter your name`);
         score: totalScore,
         tab: gridSize
       };
+
       let serialObj = JSON.stringify(userData);
       localStorage.setItem(date.toLocaleString(), serialObj);
     },
 
     getData: function(field, value) {
-      let keysLocalStorage = Object.keys(localStorage);
+      const keysLocalStorage = Object.keys(localStorage);
       let dataBase = [];
 
       keysLocalStorage.forEach(key => {
@@ -352,40 +332,10 @@ Enter your name`);
         dataBase.push(returnedObj);
       });
 
-      let filteredDB = filterByField(dataBase, field, value);
-      return filteredDB;
+      return filterByField(dataBase, field, value);
     }
 
   };
-}
-
-
-function filterByField(arr, field, value) {
-  let result = [];
-  for (const elem of arr) {
-    if (elem[field] === value) {
-      result.push(elem);
-    }
-  }
-  return result;
-}
-
-
-function sortByField(arr, field) {
-  function byField(a, b) {
-    if (a[field] < b[field]) return 1;
-    if (a[field] > b[field]) return -1;
-  }
-  return arr.sort(byField);
-}
-
-
-function displayResult(arr, number = arr.length) {
-  let result = [];
-  for (let i = 0; i < number; i++) {
-    result.push(arr[i]);
-  }
-  return result;
 }
 
 
@@ -395,34 +345,29 @@ function displayResult(arr, number = arr.length) {
 
 
 function leaderboard() {
-  let selectSize = [...document.getElementById('select-size').children];
+  let listSelectSize = [...document.getElementById('select-size').children];
   let resultsContainer = document.querySelector('.results');
-  let arrValue = [];
-  selectSize.forEach(elem => {
-    arrValue.push(parseInt(elem.value, 10));
+
+  const valueSelectSize = listSelectSize.map(elem => {
+    return parseInt(elem.value, 10);
   });
 
   let listGridSize = document.querySelector('.tabs-grid-size');
 
   if (!listGridSize.firstElementChild) {
-    for (let i = 0; i < arrValue.length; i++) {
-      let tagA = document.createElement('a');
-      tagA.innerHTML = `${arrValue[i]}x${arrValue[i]}`;
-      listGridSize.appendChild(tagA).classList.add('tab', arrValue[i]);
-
+    for (let i = 0; i < valueSelectSize.length; i++) {
+      const tab = createNode('a', { className: `tab ${valueSelectSize[i]}` }, `${valueSelectSize[i]}x${valueSelectSize[i]}`);
+      listGridSize.appendChild(tab);
       listGridSize.addEventListener('click', clickTab);
     }
   }
-
-  console.log(localStorage);
 }
 
 
 function clickTab(e) {
-  if (!e.target.classList.contains('tab'))
-    return;
+  if (!e.target.classList.contains('tab')) return;
 
-  let listTabs = [...e.target.classList];
+  const listTabs = [...e.target.classList];
   listTabs.shift();
 
   let localStorageDB = local_Storage().getData('tab', parseInt(listTabs, 10));
@@ -434,24 +379,24 @@ function clickTab(e) {
   let displayed = displayResult(sorted);
   console.log('displayed', displayed);
 
-  let resultsContainer = document.querySelector('.results');
+  const resultsContainer = document.querySelector('.results');
 
   while (resultsContainer.firstElementChild) {
     resultsContainer.firstElementChild.remove();
   }
 
   if (displayed.length === 0) {
-    let pTag = document.createElement('p');
-    resultsContainer.appendChild(pTag).innerHTML = 'No data yet!';
+    const result = createNode('p', { }, 'No data yet!');
+    resultsContainer.appendChild(result);
   }
 
   for (let i = 0; i < displayed.length; i++) {
-    let name = displayed[i].name;
-    let date = (displayed[i].date).toLocaleDateString();
-    let score = (displayed[i].score).toFixed(2);
+    const name = displayed[i].name;
+    const date = (displayed[i].date).toLocaleDateString();
+    const score = (displayed[i].score).toFixed(2);
 
-    let pTag = document.createElement('p');
-    resultsContainer.appendChild(pTag).innerHTML = `${name} ${date} ${score}`;
+    const result = createNode('p', { }, `${name} ${date} ${score}`);
+    resultsContainer.appendChild(result);
   }
 
 }
@@ -480,7 +425,7 @@ function rotateAnimation(card) {
       angle += 2;
       card.style.transform = `rotateY(${angle}deg)`;
 
-      const findedClass = findClass([...card.classList]);
+      const findedClass = findClass([...card.classList], 'theme-');
       card.classList.remove(findedClass);
       card.classList.add('selected');
     } else {
@@ -528,4 +473,63 @@ function moveAnimation(card) {
       card.style.transform = `translate(${left}px, ${top}px)`;
     }
   }
+}
+
+
+//-------------------------------------------
+//---------------HELPERS
+//-------------------------------------------
+
+
+function createNode(tag, props, ...children) {
+  const element = document.createElement(tag);
+
+  Object.keys(props).forEach(key => element[key] = props[key]);
+
+  children.forEach(child => {
+    if (typeof child === 'string') {
+      child = document.createTextNode(child);
+    }
+
+    element.appendChild(child);
+  });
+
+  return element;
+}
+
+
+function filterByField(arr, field, value) {
+  return arr.filter(elem => {
+    if (elem[field] === value) {
+      return elem;
+    }
+  });
+}
+
+
+function sortByField(arr, field) {
+  function byField(a, b) {
+    if (a[field] < b[field]) return 1;
+    if (a[field] > b[field]) return -1;
+  }
+
+  return arr.sort(byField);
+}
+
+
+function displayResult(arr, number = arr.length) {
+  return arr.slice(0, number);
+}
+
+
+function shuffle(a, b) {
+  return Math.random() - 0.5;
+}
+
+
+function findClass(array, str) {
+  const string = /[\w\-]* + str + [\w\-]*/gi;
+  return array
+    .toString()
+    .match(string);
 }
