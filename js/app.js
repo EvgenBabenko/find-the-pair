@@ -44,7 +44,6 @@ function init(sizeOfGrid) {
   createGrid();
   renderGrid(gridSize);
 
-  gridContainer.addEventListener('click', clickCard);
   setTheme();
 
   timer();
@@ -71,6 +70,8 @@ function createGrid() {
     const img = createNode('img', { className: 'mem-img', src: appPath + newArray[i] });
     const div = createNode('div', { className: 'mem-card theme' }, img);
 
+    div.addEventListener('click', clickCard);
+
     gridContainer.appendChild(div);
   }
 }
@@ -90,8 +91,7 @@ function renderGrid(gridSize) {
 
 
 function clickCard(e) {
-  if (!e.target.classList.contains('mem-card'))
-    return;
+  if (pairOfCard.length === 2) return;
 
   pairOfCard.push(e.target);
   checkClick();
@@ -180,7 +180,7 @@ function createArray() {
 
 
 function setSize() {
-  gridSize = parseInt(document.getElementById('select-size').value, 10);
+  gridSize = parseInt(document.getElementById('grid-size-select').value, 10);
 
   while (gridContainer.firstElementChild) {
     gridContainer.firstElementChild.remove();
@@ -196,7 +196,7 @@ function setSize() {
 
 
 function setTheme() {
-  let theme = document.getElementById('select-theme').value;
+  let theme = document.getElementById('themes-select').value;
   let listContainsTheme = [...document.querySelectorAll('.theme')];
 
   listContainsTheme.forEach(elem => {
@@ -220,7 +220,7 @@ function setTheme() {
 
 function timer() {
   t = new Date(t.getTime() + (new Date()).getTime() - s.getTime());
-  document.querySelector('.timer-text').textContent = t.toLocaleTimeString();
+  document.querySelector('.timer-field').textContent = t.toLocaleTimeString();
   s = new Date();
   timerID = setTimeout(timer, 100);
 }
@@ -345,28 +345,27 @@ Enter your name`);
 
 
 function leaderboard() {
-  let listSelectSize = [...document.getElementById('select-size').children];
-  let resultsContainer = document.querySelector('.results');
+  let listSelectSize = [...document.getElementById('grid-size-select').children];
+  let resultsContainer = document.querySelector('.leaderboard-results');
 
   const valueSelectSize = listSelectSize.map(elem => {
     return parseInt(elem.value, 10);
   });
 
-  let listGridSize = document.querySelector('.tabs-grid-size');
+  let listGridSize = document.querySelector('.leaderboard-tabs');
 
   if (!listGridSize.firstElementChild) {
     for (let i = 0; i < valueSelectSize.length; i++) {
       const tab = createNode('a', { className: `tab ${valueSelectSize[i]}` }, `${valueSelectSize[i]}x${valueSelectSize[i]}`);
+      tab.addEventListener('click', clickTab);
+
       listGridSize.appendChild(tab);
-      listGridSize.addEventListener('click', clickTab);
     }
   }
 }
 
 
 function clickTab(e) {
-  if (!e.target.classList.contains('tab')) return;
-
   const listTabs = [...e.target.classList];
   listTabs.shift();
 
@@ -379,7 +378,7 @@ function clickTab(e) {
   let displayed = displayResult(sorted);
   console.log('displayed', displayed);
 
-  const resultsContainer = document.querySelector('.results');
+  const resultsContainer = document.querySelector('.leaderboard-results');
 
   while (resultsContainer.firstElementChild) {
     resultsContainer.firstElementChild.remove();
@@ -424,9 +423,7 @@ function rotateAnimation(card) {
       // console.log('angle', angle);
       angle += 2;
       card.style.transform = `rotateY(${angle}deg)`;
-
-      const findedClass = findClass([...card.classList], 'theme-');
-      card.classList.remove(findedClass);
+      card.classList.remove(themeNow);
       card.classList.add('selected');
     } else {
       // console.log('angle', angle);
@@ -524,12 +521,4 @@ function displayResult(arr, number = arr.length) {
 
 function shuffle(a, b) {
   return Math.random() - 0.5;
-}
-
-
-function findClass(array, str) {
-  const string = /[\w\-]* + str + [\w\-]*/gi;
-  return array
-    .toString()
-    .match(string);
 }
