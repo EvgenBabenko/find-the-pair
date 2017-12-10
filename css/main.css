@@ -79,7 +79,8 @@ body {
 .game {
   position: relative;
   display: flex;
-  width: 760px;;
+  width: 800px;
+  height: 550px;
   margin: 0 auto;
   padding: 10px;
 }
@@ -125,6 +126,8 @@ body {
 
 .mem-card.selected {
   background-color: white;
+  border: 1px solid #c0c0c0;
+  pointer-events: none;
 }
 
 .mem-card.selected .mem-img {
@@ -157,6 +160,8 @@ body {
 }
 
 .side {
+  display: flex;
+  flex-direction: column;
   width: calc(100% - 520px);
   padding-left: 20px;
 }
@@ -173,6 +178,11 @@ body {
   font-size: 3rem;
 }
 
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+}
+
 .leaderboard-tabs {
   padding-bottom: 10px;
 }
@@ -185,4 +195,37 @@ body {
 
 .leaderboard-tabs a:hover {
   background-color: green;
+}
+
+.leaderboard-results {
+  overflow-y: scroll;
+}
+
+.leaderboard-results-table {
+  width: 100%;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+th {
+  text-align: left;
+}
+
+table tr:nth-child(even) {
+  background-color: #eee;
+}
+table tr:nth-child(odd) {
+ background-color:#fff;
+}
+table th {
+  background-color: black;
+  color: white;
+}
+.table-name {
+  max-width: 75px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

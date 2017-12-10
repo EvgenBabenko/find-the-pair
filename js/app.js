@@ -6,6 +6,8 @@ let pairOfCard;
 let countTry;
 let countFindedPairs;
 let gridSize;
+let totalPairs;
+let totalCards;
 
 let themeNow;
 
@@ -129,7 +131,6 @@ function hideCards() {
     pairOfCard.forEach(elem => {
       elem.classList.remove(themeNow, 'selected');
       elem.classList.add('empty');
-      // moveAnimation(elem);
     });
     pairOfCard = [];
   }, 500);
@@ -346,7 +347,7 @@ Enter your name`);
 
 function leaderboard() {
   let listSelectSize = [...document.getElementById('grid-size-select').children];
-  let resultsContainer = document.querySelector('.leaderboard-results');
+  // let resultsContainer = document.querySelector('.leaderboard-results');
 
   const valueSelectSize = listSelectSize.map(elem => {
     return parseInt(elem.value, 10);
@@ -370,23 +371,24 @@ function clickTab(e) {
   listTabs.shift();
 
   let localStorageDB = local_Storage().getData('tab', parseInt(listTabs, 10));
-  console.log('localStorageDB', localStorageDB);
+  // console.log('localStorageDB', localStorageDB);
 
   let sorted = sortByField(localStorageDB, 'score');
-  console.log('sorted', sorted);
+  // console.log('sorted', sorted);
 
   let displayed = displayResult(sorted);
-  console.log('displayed', displayed);
+  // console.log('displayed', displayed);
 
-  const resultsContainer = document.querySelector('.leaderboard-results');
+  const resultsTableContainer = document.querySelector('.leaderboard-results-table');
+  let resultsTable = [...resultsTableContainer.firstElementChild.children];
 
-  while (resultsContainer.firstElementChild) {
-    resultsContainer.firstElementChild.remove();
+  for (let i = 1; i < resultsTable.length; i++) {
+    resultsTable[i].remove();
   }
 
   if (displayed.length === 0) {
     const result = createNode('p', { }, 'No data yet!');
-    resultsContainer.appendChild(result);
+    resultsTableContainer.firstElementChild.appendChild(result);
   }
 
   for (let i = 0; i < displayed.length; i++) {
@@ -394,8 +396,12 @@ function clickTab(e) {
     const date = (displayed[i].date).toLocaleDateString();
     const score = (displayed[i].score).toFixed(2);
 
-    const result = createNode('p', { }, `${name} ${date} ${score}`);
-    resultsContainer.appendChild(result);
+    const td1 = createNode('td', {className: 'table-name'}, `${name}`);
+    const td2 = createNode('td', {}, `${date}`);
+    const td3 = createNode('td', {}, `${score}`);
+
+    const tr = createNode('tr', { }, td1, td2, td3);
+    resultsTableContainer.firstElementChild.appendChild(tr);
   }
 
 }
@@ -417,16 +423,13 @@ function rotateAnimation(card) {
 
   function rotateCard() {
     if (angle >= 180) {
-      // console.log('angle < 180', angle);
       clearInterval(rotateCardID);
     } else if (angle >= 90) {
-      // console.log('angle', angle);
       angle += 2;
       card.style.transform = `rotateY(${angle}deg)`;
       card.classList.remove(themeNow);
       card.classList.add('selected');
     } else {
-      // console.log('angle', angle);
       angle += 2;
       card.style.transform = `rotateY(${angle}deg)`;
     }
@@ -434,43 +437,43 @@ function rotateAnimation(card) {
 }
 
 
-function getOffset(el) {
-  el = el.getBoundingClientRect();
-  return {
-    left: el.left + window.scrollX,
-    top: el.top + window.scrollY
-  };
-}
+// function getOffset(el) {
+//   el = el.getBoundingClientRect();
+//   return {
+//     left: el.left + window.scrollX,
+//     top: el.top + window.scrollY
+//   };
+// }
 
 
-function moveAnimation(card) {
-  // debugger
-  let left = getOffset(card).left;
-  let top = getOffset(card).top;
+// function moveAnimation(card) {
+//   // debugger
+//   let left = getOffset(card).left;
+//   let top = getOffset(card).top;
 
-  console.log('left', left);
-  console.log('top', top);
+//   console.log('left', left);
+//   console.log('top', top);
 
-  let endPositionX = 0;
-  let endPositionY = 0;
-  // card.style.transform = `translate(${left}px, ${top}px)`;
+//   let endPositionX = 0;
+//   let endPositionY = 0;
+//   // card.style.transform = `translate(${left}px, ${top}px)`;
 
-  const duration = 10;
+//   const duration = 10;
 
-  let moveCardID = setInterval(moveCard, duration);
+//   let moveCardID = setInterval(moveCard, duration);
 
-  function moveCard() {
-    if (left <= endPositionX) {
-      console.log('translateX >= 255', left);
-      clearInterval(moveCardID);
-    } else {
-      console.log('translateX', card, left);
-      left -= 2;
-      // top -= 2;
-      card.style.transform = `translate(${left}px, ${top}px)`;
-    }
-  }
-}
+//   function moveCard() {
+//     if (left <= endPositionX) {
+//       console.log('translateX >= 255', left);
+//       clearInterval(moveCardID);
+//     } else {
+//       console.log('translateX', card, left);
+//       left -= 2;
+//       // top -= 2;
+//       card.style.transform = `translate(${left}px, ${top}px)`;
+//     }
+//   }
+// }
 
 
 //-------------------------------------------
